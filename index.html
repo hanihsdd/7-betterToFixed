@@ -1,0 +1,185 @@
+<script src="simpletest.js"></script>
+<script>
+
+/**
+ * CONTENTS
+ * ============================================================================= 
+ * 
+ * #PLANNING.....Explanation of task and expected behavior.
+ *
+ * #APP..........Our implementation of a betterToFixed function.
+ *
+ * #TESTS........Tests using simpletest.js and including test cases from fellow 
+ *               Watch and Code students.
+ */
+
+
+
+
+
+/* ==========================================================================
+   #PLANNING
+   ========================================================================== */
+
+/**
+ * TASK:
+ * https://github.com/gordonmzhu/beasts/issues/7
+ * 
+ * Your job is to rewrite accounting.toFixed so that it does NOT use 
+ * multiplication or exponential notation. Instead, you will actually move the 
+ * decimal point using string manipulation.
+ */
+
+
+/**
+ * OUR FUNCTION:
+ * betterToFixed(value, precision)
+ *
+ * @param {number} value           the number value we want to round
+ * @param {number} precision       number of decimal places to round to
+ */
+
+
+/**
+ * EXPECTED BEHAVIOUR:
+ * betterToFixed(1.005, 2) ==> 1.01
+ */
+
+
+
+
+
+/* ==========================================================================
+   #APP
+   ========================================================================== */
+
+/**
+ * `betterToFixed` function
+ * 
+ * 1. `moveDecimal` function to manipulate number into string, and allow us to
+ *    to move decimal to a new position which will allow us to...
+ * 2. Accurately round our value up or down to a whole integer
+ * 3. `moveDecimal` to add our decimal back into it's correct position and 
+ *    include leading or trailing zeroes as needed
+ * 4. Return our newly formatted value
+ */
+
+function betterToFixed(value, precision) {
+	value = moveDecimal(value, precision); /* [1] */
+	value = Math.round(value); /* [2] */
+	value = moveDecimal(value, -precision); /* [3] */
+	return value; /* [4] */
+};
+
+
+
+
+
+/**
+ * `moveDecimal` function. Possibly not the best name as it performs a lot of
+ * tasks.
+ */
+
+function moveDecimal(value, precision) {
+
+	// Check that value is a number and convert to a string / 1.005 ==> '1.005'
+	if (typeof value === 'number') {
+		value = value.toString();
+	}
+
+	// Convert string to an array / '1.005' ==> [1, ., 0, 0, 5]
+	var arr = value.split(''); 
+
+	// Get the position of our decimal / [1, ., 0, 0, 5] ==> index of '.' is 1
+	var decimalPosition = arr.indexOf('.'); 
+
+	// If no decimal exists, set decimal position to arr.length
+	if (decimalPosition === -1) {
+		decimalPosition = arr.length;
+	} else {
+		// Else if decimal exists, remove the decimal
+		arr.splice(decimalPosition, 1);	
+	}
+
+	// Get new decimal position by adding current decimal position to precision
+	var newDecimalPosition = decimalPosition + precision;
+
+
+	// If newDecimalPosition is greater than arr length, add zeroes to end
+	if (newDecimalPosition > arr.length) {
+		while(newDecimalPosition > arr.length) {
+			arr.push('0');
+		}
+	}
+
+	// If newDecimalPosition is less than 1, we add zeroes to beginning
+	if (newDecimalPosition < 1) {
+		while (newDecimalPosition < 1) {
+			arr.unshift('0');
+			newDecimalPosition++;
+		}
+	}
+
+	// Add decimal to new position in array
+	arr.splice(newDecimalPosition, 0, '.');
+
+	// Convert array back to string
+	value = arr.join('');
+
+	return value;
+}
+
+
+
+
+
+/* ==========================================================================
+   #TESTS
+   ========================================================================== */
+
+tests({
+  'It should round 10.235 correctly to 10.24': function() {
+    eq(betterToFixed(10.235, 2), '10.24');
+  },
+
+  'It should round 1.005 correctly to 1.01': function() {
+    eq(betterToFixed(1.005, 2), '1.01');
+  },
+
+  'It should round 0.615 correctly to 0.62': function() {
+    eq(betterToFixed(0.615, 2), '0.62');
+  },
+
+  'It should round 10.23456 correctly to 10.235': function() {
+  	eq(betterToFixed(10.23456, 3), '10.235');
+  },
+
+
+// KENNY'S TESTS
+
+	'"100" with 5 precision should return "100.00000"': function() {
+    eq(betterToFixed(100, 5), '100.00000');
+  },
+  '".005" with 2 precision should return "0.01"': function() {
+    eq(betterToFixed(.005, 2), '0.01');
+  },
+  '"1.005" with 2 precision return "1.01"': function() {
+    eq(betterToFixed(1.005, 2), '1.01');
+  },
+  '"12314.12342145" with 7 precision return "12314.1234215"': function() {
+    eq(betterToFixed(12314.12342145, 7), '12314.1234215');
+  },
+  'Precision greater than number of decimals': function() {
+    eq(betterToFixed(12314.12342145, 15), '12314.123421450000000');
+  },
+
+
+// TIFF'S TESTS 
+
+  'it should pad 1.5 correctly to 1.5000': function() {
+    eq(betterToFixed(1.5, 4), '1.5000');
+  }
+
+});
+
+</script>
